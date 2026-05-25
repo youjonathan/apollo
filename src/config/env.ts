@@ -1,4 +1,4 @@
-import type { SupabaseConfig } from "../queue/supabase.ts";
+import type { SupabaseConfig } from "../queue/supabase";
 
 export function readApolloConfigFromEnv(): SupabaseConfig {
   const url = process.env.SUPABASE_URL ?? "";
