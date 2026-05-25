@@ -1,6 +1,6 @@
-import { runApolloListener } from "./listener/index";
+import { runApolloListener } from "./listener/index.js";
 
-export { runApolloListener } from "./listener/index";
+export { runApolloListener } from "./listener/index.js";
 
 if (import.meta.main) {
   const controller = new AbortController();

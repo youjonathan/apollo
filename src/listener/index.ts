@@ -1,11 +1,21 @@
-import { appendJobLogs, claimJob, fetchNextQueuedJob, updateJob, type ApolloJob, type SupabaseConfig } from "../queue/supabase.ts";
-import { readApolloConfigFromEnv } from "../config/env.ts";
-import { executeShellCommand } from "../shell/exec.ts";
+import { appendJobLogs, claimJob, fetchNextQueuedJob, updateJob, type ApolloJob, type SupabaseConfig } from "../queue/supabase.js";
+import { executeShellCommand } from "../shell/exec.js";
 
 export interface ApolloListenerOptions {
   pollIntervalMs?: number;
   shellTimeoutMs?: number;
   stopSignal?: AbortSignal;
+}
+
+function readConfigFromEnv(): SupabaseConfig {
+  const url = process.env.SUPABASE_URL ?? "";
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  const tableName = process.env.APOLLO_JOBS_TABLE ?? "apollo_jobs";
+
+  if (!url) throw new Error("SUPABASE_URL is required");
+  if (!serviceRoleKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY is required");
+
+  return { url, serviceRoleKey, tableName };
 }
 
 async function processJob(
@@ -55,7 +65,7 @@ async function processJob(
 }
 
 export async function runApolloListener(options: ApolloListenerOptions = {}): Promise<void> {
-  const config = readApolloConfigFromEnv();
+  const config = readConfigFromEnv();
   const pollIntervalMs = options.pollIntervalMs ?? 2000;
   const shellTimeoutMs = options.shellTimeoutMs ?? 10 * 60 * 1000;
   const stopSignal = options.stopSignal;
@@ -75,15 +85,4 @@ export async function runApolloListener(options: ApolloListenerOptions = {}): Pr
       await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
     }
   }
-}
-
-if (import.meta.main) {
-  const controller = new AbortController();
-  process.on("SIGINT", () => controller.abort());
-  process.on("SIGTERM", () => controller.abort());
-
-  runApolloListener({ stopSignal: controller.signal }).catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
 }
