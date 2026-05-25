@@ -74,10 +74,12 @@ export async function runApolloListener(options: ApolloListenerOptions = {}): Pr
     try {
       const job = await fetchNextQueuedJob(config);
       if (!job) {
+        console.log("Waiting for jobs...");
         await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
         continue;
       }
 
+      console.log("Processing job...", job.id);
       await processJob(config, job, shellTimeoutMs);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
