@@ -10,7 +10,7 @@ export interface ApolloListenerOptions {
 function readConfigFromEnv(): SupabaseConfig {
   const url = process.env.SUPABASE_URL ?? "";
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-  const tableName = process.env.APOLLO_JOBS_TABLE ?? "apollo_jobs";
+  const tableName = process.env.APOLLO_JOBS_TABLE ?? "jobs";
 
   if (!url) throw new Error("SUPABASE_URL is required");
   if (!serviceRoleKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY is required");

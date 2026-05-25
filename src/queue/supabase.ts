@@ -40,7 +40,7 @@ function assertConfig(config: SupabaseConfig): Required<SupabaseConfig> {
   return {
     url: config.url.replace(/\/$/, ""),
     serviceRoleKey: config.serviceRoleKey,
-    tableName: config.tableName ?? "apollo_jobs",
+    tableName: config.tableName ?? "jobs",
   };
 }
 
