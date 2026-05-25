@@ -5,3 +5,4 @@ Apollo is a self-hosted autonomous agent built on Hermes for email triage, resea
 ## Features
 
 - native mobile-to-terminal bridge for real-time orchestration between poke and local coding sessions like claude code
+- native threading — implement native imessage/sms threading for replies to clean up the ux loop
