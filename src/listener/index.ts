@@ -1,5 +1,5 @@
-import { appendJobLogs, claimJob, fetchNextQueuedJob, updateJob, type ApolloJob, type SupabaseConfig } from "../queue/supabase.js";
-import { executeShellCommand } from "../shell/exec.js";
+import { appendJobLogs, claimJob, fetchNextQueuedJob, updateJob, type ApolloJob, type SupabaseConfig } from "../queue/supabase.ts";
+import { executeShellCommand } from "../shell/exec.ts";
 
 export interface ApolloListenerOptions {
   pollIntervalMs?: number;
@@ -10,7 +10,7 @@ export interface ApolloListenerOptions {
 function readConfigFromEnv(): SupabaseConfig {
   const url = process.env.SUPABASE_URL ?? "";
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-  const tableName = process.env.APOLLO_JOBS_TABLE ?? "jobs";
+  const tableName = process.env.APOLLO_JOBS_TABLE ?? "apollo_jobs";
 
   if (!url) throw new Error("SUPABASE_URL is required");
   if (!serviceRoleKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY is required");
@@ -40,7 +40,7 @@ async function processJob(
 
     const completedAt = new Date().toISOString();
     await updateJob(config, job.id, {
-      status: result.exitCode === 0 ? "completed" : "failed",
+      status: result.exitCode === 0 ? "success" : "failed",
       completed_at: completedAt,
       exit_code: result.exitCode,
       stdout: result.stdout,
@@ -64,7 +64,7 @@ async function processJob(
   }
 }
 
-export async function runApolloListener(options: ApolloListenerOptions = {}): Promise<void> {
+export async function runApolloListener(options: ApolloListenerOptions = {}) : Promise<void> {
   const config = readConfigFromEnv();
   const pollIntervalMs = options.pollIntervalMs ?? 2000;
   const shellTimeoutMs = options.shellTimeoutMs ?? 10 * 60 * 1000;
@@ -87,4 +87,15 @@ export async function runApolloListener(options: ApolloListenerOptions = {}): Pr
       await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
     }
   }
+}
+
+if (import.meta.main) {
+  const controller = new AbortController();
+  process.on("SIGINT", () => controller.abort());
+  process.on("SIGTERM", () => controller.abort());
+
+  runApolloListener({ stopSignal: controller.signal }).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 }

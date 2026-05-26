@@ -1,4 +1,4 @@
-export type ApolloJobStatus = "queued" | "running" | "completed" | "failed" | "canceled";
+export type ApolloJobStatus = "queued" | "running" | "success" | "failed" | "canceled";
 
 export interface ApolloJob {
   id: string;
@@ -40,7 +40,7 @@ function assertConfig(config: SupabaseConfig): Required<SupabaseConfig> {
   return {
     url: config.url.replace(/\/$/, ""),
     serviceRoleKey: config.serviceRoleKey,
-    tableName: config.tableName ?? "jobs",
+    tableName: config.tableName ?? "apollo_jobs",
   };
 }
 
